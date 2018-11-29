@@ -6,6 +6,7 @@ from pygame.locals import *
 
 
 def game_over():
+    jookseb = False
     return ('Miin!!!')
 
 
@@ -37,7 +38,12 @@ def safe_zone():
 
     for ruut in valjak:
         if ruut in vasakpoolsed_ruudud or ruut in parempoolsed_ruudud:
-            valjak[ruut] = 23
+            valjak[ruut] = 0
+    
+    # Joonistab rohelised ruudud
+    for i in range(len(maatriks)):
+        for j in range(0, len(maatriks[i]), RUUTUDE_VEERGE - 1):
+            maatriks[i][j] = 23
 
 
 def miinide_arv(sisend):  # tagastab, mitu miini ümbritseb antud ruutu
@@ -87,25 +93,25 @@ def miinide_arv(sisend):  # tagastab, mitu miini ümbritseb antud ruutu
 
 
 def klikk(x, y):  # tagastab hulga elemendi, mille peale vajutati
-    if x > 10 and x < (RUUTUDE_VEERGE * 20 + 10):
-        x_asukoht = int((x - 10) / 20)
 
-    elif x < 10 or x > (RUUTUDE_VEERGE * 20 + 10):
-        return None
+    if x >= SERVA_PAKSUS and x <= (RUUTUDE_VEERGE * RUUDU_KULG + SERVA_PAKSUS):
+        x_asukoht = int((x - SERVA_PAKSUS) / RUUDU_KULG)
 
-    if y > 10 and y < (RUUTUDE_RIDU * 20 + 10):
-        y_asukoht = int((y - 10) / 20)
+    elif x < SERVA_PAKSUS or x > (SERVA_PAKSUS + RUUTUDE_VEERGE * RUUDU_KULG):
+        return
 
-    elif y < 10 or y > (RUUTUDE_VEERGE * 20 + 10):
-        return None
+    if y >= SERVA_PAKSUS and y <= (RUUTUDE_RIDU * RUUDU_KULG + SERVA_PAKSUS):
+        y_asukoht = int((y - SERVA_PAKSUS) / RUUDU_KULG)
+
+    elif y < SERVA_PAKSUS or y > (SERVA_PAKSUS + RUUTUDE_VEERGE * RUUDU_KULG):
+        return
 
     valjund = y_asukoht * RUUTUDE_VEERGE + x_asukoht
     return valjund
 
 
 def kliki_tagajarg(sisend):     # klikk avab ühe ruudu, see otsustab, kas ta astus miini otsa või tagastada kuvamiseks ümbritsevate miinide arv
-    if sisend == None:
-        return ('Väljaspool piiri')
+
     if valjak[sisend] == 1:
         return game_over()
     else:
@@ -115,7 +121,7 @@ def kliki_tagajarg(sisend):     # klikk avab ühe ruudu, see otsustab, kas ta as
 # Põhifunktsioon
 def main():
 
-    global valjak, maatriks, vasakpoolsed_ruudud, parempoolsed_ruudud
+    global jookseb, valjak, maatriks, vasakpoolsed_ruudud, parempoolsed_ruudud
 
     pygame.init()
 
@@ -124,19 +130,19 @@ def main():
     pygame.display.set_caption('Minesweeper Vol. 2')
 
     # Laeb pildid sisse
-    ruut = pygame.image.load('ruut.jpg').convert()
-    avatud_ruut = pygame.image.load('avatud_ruut.jpg').convert()
-    safe_ruut = pygame.image.load('safe_ruut.jpg').convert()
-    uks = pygame.image.load('1.jpg').convert()
-    kaks = pygame.image.load('2.jpg').convert()
-    kolm = pygame.image.load('3.jpg').convert()
-    neli = pygame.image.load('4.jpg').convert()
-    viis = pygame.image.load('5.jpg').convert()
-    kuus = pygame.image.load('6.jpg').convert()
-    seitse = pygame.image.load('7.jpg').convert()
-    kaheksa = pygame.image.load('8.jpg').convert()
-    miin = pygame.image.load('miin.jpg').convert()
-    lipp = pygame.image.load('lipp.jpg').convert()
+    ruut = pygame.image.load('ruut.png').convert()
+    avatud_ruut = pygame.image.load('avatud_ruut.png').convert()
+    safe_ruut = pygame.image.load('safe_ruut.png').convert()
+    uks = pygame.image.load('1.png').convert()
+    kaks = pygame.image.load('2.png').convert()
+    kolm = pygame.image.load('3.png').convert()
+    neli = pygame.image.load('4.png').convert()
+    viis = pygame.image.load('5.png').convert()
+    kuus = pygame.image.load('6.png').convert()
+    seitse = pygame.image.load('7.png').convert()
+    kaheksa = pygame.image.load('8.png').convert()
+    miin = pygame.image.load('miin.png').convert()
+    lipp = pygame.image.load('lipp.png').convert()
 
     # Seab kindla numbri pildiga vastavusse
     pildi_id = {1:ruut, 0:ruut, 11: uks, 12:kaks, 13:kolm,
@@ -144,42 +150,48 @@ def main():
                 10:avatud_ruut, 21:miin, 22:lipp, 23:safe_ruut}
 
     # Tsükkel, mis täidab akna avamata ruutudega
-    for ruudu_y in range(SERVA_PAKSUS, RUUDU_PIKKUS * RUUTUDE_RIDU, RUUDU_PIKKUS):
-        for ruudu_x in range(SERVA_PAKSUS, RUUDU_LAIUS * RUUTUDE_VEERGE, RUUDU_LAIUS):
+    for ruudu_y in range(SERVA_PAKSUS, RUUDU_KULG * RUUTUDE_RIDU, RUUDU_KULG):
+        for ruudu_x in range(SERVA_PAKSUS, RUUDU_KULG * RUUTUDE_VEERGE, RUUDU_KULG):
             aken.blit(ruut, (ruudu_x, ruudu_y))
 
     # Mänguvälja loomine
     valjak = maara_miinid()
     
-    # Safe zone loomine
+    # Safe zone'i ruutude loomine
     vasakpoolsed_ruudud = []
     for i in range(RUUTUDE_RIDU):
         vasakpoolsed_ruudud.append(i * RUUTUDE_VEERGE)
 
-    # Maatriks mille järgi joonistatakse mängu seis
-    maatriks = miinide_maatriks(valjak)
-
     parempoolsed_ruudud = []
     for i in range(RUUTUDE_RIDU):
         parempoolsed_ruudud.append(i * RUUTUDE_VEERGE + (RUUTUDE_VEERGE - 1))
+        
+    # Maatriks mille järgi joonistatakse mängu seis
+    maatriks = miinide_maatriks(valjak)
+    
+    # Loob rohelised ruudud
+    safe_zone()
 
     # Põhitsükkel
-    while True:
+    jookseb = True
+    while jookseb:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
+                    jookseb = False
                     sys.exit()
             elif event.type == pygame.QUIT:
+                jookseb = False
                 sys.exit()
         
         rida = 0
 
         # Tsükkel, mis joonistab pildi maatriksi põhjal
-        for ruudu_y in range(SERVA_PAKSUS, RUUDU_PIKKUS * RUUTUDE_RIDU, RUUDU_PIKKUS):
+        for ruudu_y in range(SERVA_PAKSUS, RUUDU_KULG * RUUTUDE_RIDU, RUUDU_KULG):
             
             id = 0
 
-            for ruudu_x in range(SERVA_PAKSUS, RUUDU_LAIUS * RUUTUDE_VEERGE, RUUDU_LAIUS):
+            for ruudu_x in range(SERVA_PAKSUS, RUUDU_KULG * RUUTUDE_VEERGE, RUUDU_KULG):
 
                     pilt = pildi_id[maatriks[rida][id]]
                     aken.blit(pilt, (ruudu_x, ruudu_y))
@@ -187,12 +199,10 @@ def main():
                     if pilt == miin:
                         pygame.display.flip()
                         pygame.time.delay(2000)
-                        sys.exit()
+                        jookseb = False
                     id += 1
             
             rida += 1
-
-        # TODO ruut highlighitud kui hiir selle peal on
 
         # Vasak hiireklõps
         if pygame.mouse.get_pressed()[0] == 1:
@@ -203,9 +213,7 @@ def main():
                 continue
             else:
                 ava_ruut = kliki_tagajarg(peale_vajutatud_element)
-                if ava_ruut == 'Väljaspool piiri':
-                    continue
-                elif ava_ruut == 'Miin!!!':
+                if ava_ruut == 'Miin!!!':
                     print('Mäng läbi!')
                     rea_nr = peale_vajutatud_element // RUUTUDE_VEERGE
                     elemendi_nr = peale_vajutatud_element % RUUTUDE_VEERGE
@@ -227,6 +235,7 @@ def main():
                 rea_nr = peale_vajutatud_element // RUUTUDE_VEERGE
                 elemendi_nr = peale_vajutatud_element % RUUTUDE_VEERGE
                 maatriks[rea_nr][elemendi_nr] = 22
+                
         
         # Uuendab pilti
         pygame.display.flip()
@@ -239,9 +248,7 @@ def main():
 
 
 # Ühe ruudukese suurus pikslites
-RUUDU_LAIUS = 20
-RUUDU_PIKKUS = 20
-# TODO ruudu suurus pildi järgi
+RUUDU_KULG = 20
 
 # Mitu ruutu väljal on
 RUUTUDE_VEERGE = 60
@@ -249,11 +256,11 @@ RUUTUDE_RIDU = 15
 # TODO muudetav arv ruute
 
 # Akna ääre paksus pikslites
-SERVA_PAKSUS = 10
+SERVA_PAKSUS = 0
 
 # Arvutab akna suuruse
-akna_laius = RUUDU_LAIUS * RUUTUDE_VEERGE + 2 * SERVA_PAKSUS
-akna_korgus = RUUDU_PIKKUS * RUUTUDE_RIDU + 2 * SERVA_PAKSUS
+akna_laius = RUUDU_KULG * RUUTUDE_VEERGE + 2 * SERVA_PAKSUS
+akna_korgus = RUUDU_KULG * RUUTUDE_RIDU + 2 * SERVA_PAKSUS
 
 # Mitu protsenti ruutudest on miinid
 PROTSENT_MIINE = 20
