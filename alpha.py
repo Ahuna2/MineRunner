@@ -46,49 +46,47 @@ def safe_zone():
             maatriks[i][j] = 23
 
 
-def miinide_arv(sisend):  # tagastab, mitu miini ümbritseb antud ruutu
-
-    ulemised_ruudud = []
-    for i in range(RUUTUDE_VEERGE):
-        ulemised_ruudud.append(i)
-
-    alumised_ruudud = []
-    for i in range(RUUTUDE_VEERGE):
-        alumised_ruudud.append(RUUTUDE_VEERGE * RUUTUDE_RIDU - 1 - i)
-
-    if sisend in vasakpoolsed_ruudud and sisend in ulemised_ruudud:
-        miinide_arv = valjak[sisend + 1] + valjak[sisend + RUUTUDE_VEERGE] + valjak[sisend + RUUTUDE_VEERGE + 1]
-
-    elif sisend in parempoolsed_ruudud and sisend in ulemised_ruudud:
-        miinide_arv = valjak[sisend - 1] + valjak[sisend + RUUTUDE_VEERGE - 1] + valjak[sisend + RUUTUDE_VEERGE]
-
-    elif sisend in vasakpoolsed_ruudud and sisend in alumised_ruudud:
-        miinide_arv = valjak[sisend - RUUTUDE_VEERGE] + valjak[sisend - RUUTUDE_VEERGE + 1] + valjak[sisend + 1]
-
-    elif sisend in parempoolsed_ruudud and sisend in alumised_ruudud:
-        miinide_arv = valjak[sisend - RUUTUDE_VEERGE - 1] + valjak[sisend - RUUTUDE_VEERGE] + valjak[sisend - 1]
-
-    elif sisend in vasakpoolsed_ruudud:
-        miinide_arv = valjak[sisend - RUUTUDE_VEERGE] + valjak[sisend - RUUTUDE_VEERGE + 1] + valjak[sisend + 1] + valjak[
-            sisend + RUUTUDE_VEERGE] + valjak[sisend + RUUTUDE_VEERGE + 1]
-
-    elif sisend in parempoolsed_ruudud:
-        miinide_arv = valjak[sisend - RUUTUDE_VEERGE] + valjak[sisend - RUUTUDE_VEERGE - 1] + valjak[sisend - 1] + valjak[
-            sisend + RUUTUDE_VEERGE] + valjak[sisend + RUUTUDE_VEERGE - 1]
-
-    elif sisend in ulemised_ruudud:
-        miinide_arv = valjak[sisend - 1] + valjak[sisend + 1] + valjak[sisend + RUUTUDE_VEERGE - 1] + valjak[
-            sisend + RUUTUDE_VEERGE] + valjak[sisend + RUUTUDE_VEERGE + 1]
-
-    elif sisend in alumised_ruudud:
-        miinide_arv = valjak[sisend - RUUTUDE_VEERGE - 1] + valjak[sisend - RUUTUDE_VEERGE] + valjak[
-            sisend - RUUTUDE_VEERGE + 1] + valjak[sisend - 1] + valjak[sisend + 1]
-
-    else:
-        miinide_arv = valjak[sisend - RUUTUDE_VEERGE - 1] + valjak[sisend - RUUTUDE_VEERGE] + valjak[
-            sisend - RUUTUDE_VEERGE + 1] + valjak[sisend - 1] + valjak[sisend + 1] + valjak[sisend + RUUTUDE_VEERGE - 1] + \
-                      valjak[sisend + RUUTUDE_VEERGE] + valjak[sisend + RUUTUDE_VEERGE + 1]
-
+def miinide_arv(sisend):
+    
+    miinide_arv = 0
+    
+    try:
+        miinide_arv += valjak[sisend - RUUTUDE_VEERGE]
+    except:
+        pass
+    try:
+        miinide_arv += valjak[sisend + RUUTUDE_VEERGE]
+    except:
+        pass
+        
+    if sisend not in vasakpoolsed_ruudud:
+        miinide_arv += valjak[sisend - 1]
+        try:
+            miinide_arv += valjak[sisend - RUUTUDE_VEERGE - 1]
+        except:
+            pass
+        try:
+            miinide_arv += valjak[sisend + RUUTUDE_VEERGE - 1]
+        except:
+            pass
+            
+    if sisend not in parempoolsed_ruudud:
+        miinide_arv += valjak[sisend + 1]
+        try:
+            miinide_arv += valjak[sisend - RUUTUDE_VEERGE + 1]
+        except:
+            pass
+        try:
+            miinide_arv += valjak[sisend + RUUTUDE_VEERGE + 1]
+        except:
+            pass
+        
+##    if miinide_arv == 0:
+##        ava_umbritsevad(sisend)
+##
+    if miinide_arv == None:
+        miinide_arv = 0
+    
     return miinide_arv
 
 
