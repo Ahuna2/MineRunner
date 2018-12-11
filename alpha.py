@@ -20,6 +20,48 @@ def maara_miinid():  # koostab randomilt sõnastiku, kus 1 tähistab miini ja 0 
         valjund[i] = 1
     return valjund
 
+def kas_umbritsev(vasakpoolsed_ruudud): # koostab sõnastiku, mida mäng uuendab, et kontrollida kas kõrvalt on midagi avatud
+    
+    valjund = {}
+    for el in range(RUUTUDE_VEERGE * RUUTUDE_RIDU):
+        valjund[el] = 0
+    for el in vasakpoolsed_ruudud:
+        valjund[el] = 1
+    return valjund
+
+def jah_umbritsev(sisend, kas_umbritseb):
+    
+    try:
+        kas_umbritseb[sisend - RUUTUDE_VEERGE] = 1
+    except:
+        pass
+    try:
+        kas_umbritseb[sisend + RUUTUDE_VEERGE] = 1
+    except:
+        pass
+        
+    if sisend not in vasakpoolsed_ruudud:
+        kas_umbritseb[sisend - 1] = 1
+        try:
+            kas_umbritseb[sisend - RUUTUDE_VEERGE - 1] = 1
+        except:
+            pass
+        try:
+            kas_umbritseb[sisend + RUUTUDE_VEERGE - 1] = 1
+        except:
+            pass
+            
+    if sisend not in parempoolsed_ruudud:
+        kas_umbritseb[sisend + 1] = 1
+        try:
+            kas_umbritseb[sisend - RUUTUDE_VEERGE + 1] = 1
+        except:
+            pass
+        try:
+            kas_umbritseb[sisend + RUUTUDE_VEERGE + 1] = 1
+        except:
+            pass
+
 
 def miinide_maatriks(sonastik):
 
@@ -105,21 +147,24 @@ def klikk(x, y):  # tagastab hulga elemendi, mille peale vajutati
         return
 
     valjund = y_asukoht * RUUTUDE_VEERGE + x_asukoht
+    
     return valjund
 
 
-def kliki_tagajarg(sisend):     # klikk avab ühe ruudu, see otsustab, kas ta astus miini otsa või tagastada kuvamiseks ümbritsevate miinide arv
+def kliki_tagajarg(sisend, kas_umbritseb):     # klikk avab ühe ruudu, see otsustab, kas ta astus miini otsa või tagastada kuvamiseks ümbritsevate miinide arv
 
-    if valjak[sisend] == 1:
-        return game_over()
-    else:
-        return miinide_arv(sisend)
+    if kas_umbritseb[sisend] == 1:
+        jah_umbritsev((peale_vajutatud_element), kas_umbritseb)
+        if valjak[sisend] == 1:
+            return game_over()
+        else:
+            return miinide_arv(sisend)
 
 
 # Põhifunktsioon
 def main():
 
-    global jookseb, valjak, maatriks, vasakpoolsed_ruudud, parempoolsed_ruudud
+    global jookseb, valjak, maatriks, vasakpoolsed_ruudud, parempoolsed_ruudud, peale_vajutatud_element
 
     pygame.init()
 
@@ -163,6 +208,9 @@ def main():
     parempoolsed_ruudud = []
     for i in range(RUUTUDE_RIDU):
         parempoolsed_ruudud.append(i * RUUTUDE_VEERGE + (RUUTUDE_VEERGE - 1))
+        
+    # Loob sõnastiku, mis salvestab, milliseid ruute saab
+    kas_umbritseb = kas_umbritsev(vasakpoolsed_ruudud)
         
     # Maatriks mille järgi joonistatakse mängu seis
     maatriks = miinide_maatriks(valjak)
@@ -210,7 +258,8 @@ def main():
             if peale_vajutatud_element == None:
                 continue
             else:
-                ava_ruut = kliki_tagajarg(peale_vajutatud_element)
+                
+                ava_ruut = kliki_tagajarg(peale_vajutatud_element, kas_umbritseb)
                 if ava_ruut == 'Miin!!!':
                     print('Mäng läbi!')
                     rea_nr = peale_vajutatud_element // RUUTUDE_VEERGE
@@ -220,7 +269,10 @@ def main():
                 else:
                     rea_nr = peale_vajutatud_element // RUUTUDE_VEERGE
                     elemendi_nr = peale_vajutatud_element % RUUTUDE_VEERGE
-                    maatriks[rea_nr][elemendi_nr] = 10 + ava_ruut
+                    try:
+                        maatriks[rea_nr][elemendi_nr] = 10 + ava_ruut
+                    except:
+                        pass
         
         # Parem hiireklõps
         if pygame.mouse.get_pressed()[2] == 1:
