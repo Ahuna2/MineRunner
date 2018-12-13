@@ -1,3 +1,10 @@
+##############
+# MineRunner #
+##############
+###################################################################################
+# Töötab nagu Minesweeper, kuid sa alustab vasakult ja võidad kui jõuad paremale. #
+###################################################################################
+
 import sys
 from random import *
 
@@ -208,8 +215,8 @@ def kliki_tagajarg(sisend):
             return 'Miini otsas!'
         else:
             valjund = kaart[sisend]
-            if valjund == 0:
-                ava_umbritsevad(sisend)
+            # if valjund == 0:
+            #     ava_umbritsevad(sisend)
             return valjund
 
 
@@ -229,7 +236,7 @@ def loo_pilt(aken, pildi_id, miin):
                 # Kui on miini klikitud, siis joonistab selle
                 if pilt == miin:
                     pygame.display.flip()
-                    pygame.time.delay(2000)
+                    pygame.time.delay(500)
                 id += 1
         
         rida += 1
@@ -240,6 +247,7 @@ def main():
     global valjak, maatriks, vasakpoolsed_ruudud, parempoolsed_ruudud, peale_vajutatud_element, kaart, kas_umbritseb, voidetud
 
     pygame.init()
+    pygame.mixer.init()
 
     voidetud = False
     miini_otsa_astunud = False
@@ -253,19 +261,27 @@ def main():
     teksti_font = pygame.font.SysFont(None, fondi_suurus, bold=False)
 
     # Laeb pildid sisse
-    ruut = pygame.image.load('ruut.png').convert()
-    avatud_ruut = pygame.image.load('avatud_ruut.png').convert()
-    safe_ruut = pygame.image.load('safe_ruut.png').convert()
-    uks = pygame.image.load('1.png').convert()
-    kaks = pygame.image.load('2.png').convert()
-    kolm = pygame.image.load('3.png').convert()
-    neli = pygame.image.load('4.png').convert()
-    viis = pygame.image.load('5.png').convert()
-    kuus = pygame.image.load('6.png').convert()
-    seitse = pygame.image.load('7.png').convert()
-    kaheksa = pygame.image.load('8.png').convert()
-    miin = pygame.image.load('miin.png').convert()
-    lipp = pygame.image.load('lipp.png').convert()
+    ruut = pygame.image.load('pildid//ruut.png').convert()
+    avatud_ruut = pygame.image.load('pildid//avatud_ruut.png').convert()
+    safe_ruut = pygame.image.load('pildid//safe_ruut.png').convert()
+    uks = pygame.image.load('pildid//1.png').convert()
+    kaks = pygame.image.load('pildid//2.png').convert()
+    kolm = pygame.image.load('pildid//3.png').convert()
+    neli = pygame.image.load('pildid//4.png').convert()
+    viis = pygame.image.load('pildid//5.png').convert()
+    kuus = pygame.image.load('pildid//6.png').convert()
+    seitse = pygame.image.load('pildid//7.png').convert()
+    kaheksa = pygame.image.load('pildid//8.png').convert()
+    miin = pygame.image.load('pildid//miin.png').convert()
+    lipp = pygame.image.load('pildid//lipp.png').convert()
+
+    # Muusika mängimine
+    pygame.mixer.music.load('helid//taustamuusika.ogg')
+    pygame.mixer.music.play(-1)
+
+    # Helid
+    game_over_heli = pygame.mixer.Sound('helid//game_over.ogg')
+    voidetud_heli = pygame.mixer.Sound('helid//voidetud.ogg')
 
     # Seab kindla numbri pildiga vastavusse
     pildi_id = {1:ruut, 0:ruut, 11: uks, 12:kaks, 13:kolm,
@@ -313,10 +329,13 @@ def main():
 
         # Kontrollib kas on miini otsa astutud
         if miini_otsa_astunud:
+            pygame.mixer.music.stop()
+            game_over_heli.play()
+            print('Mäng läbi!')
             game_over_lava = teksti_font.render('GAME OVER!', False, (200, 50, 50), (100, 100, 100))
             aken.blit(game_over_lava, (akna_laius / 9, akna_korgus / 3))
             pygame.display.flip()
-            pygame.time.delay(4000)
+            pygame.time.delay(6000)
             break
 
         # Kui on jõutud teisele poole siis on mäng võidetud
@@ -326,11 +345,13 @@ def main():
 
         # Kontrollib kas mäng on võidetud
         if voidetud:
+            pygame.mixer.music.stop()
+            voidetud_heli.play()
             print('Võitsid!')
             voidetud_lava = teksti_font.render('YOU WON!', False, (50, 180, 70), (100, 100, 100))
             aken.blit(voidetud_lava, (akna_laius / 5, akna_korgus / 3))
             pygame.display.flip()
-            pygame.time.delay(4000)
+            pygame.time.delay(5000)
             break
 
         # Vasak hiireklõps
@@ -354,7 +375,6 @@ def main():
                 else:
                     rea_nr = peale_vajutatud_element // RUUTUDE_VEERGE
                     elemendi_nr = peale_vajutatud_element % RUUTUDE_VEERGE
-                    
                     try:
                         maatriks[rea_nr][elemendi_nr] = 10 + ava_ruut
                     except:
@@ -384,7 +404,7 @@ def main():
                 elif maatriks[rea_nr][elemendi_nr] == 23:
                     maatriks[rea_nr][elemendi_nr] = 1
                 
-                pygame.time.delay(200)
+                pygame.time.delay(150)
                 
         
         # Uuendab pilti
@@ -396,16 +416,16 @@ def main():
     pygame.quit()
 
 
-########################
-# Konstantsed muutujad #
-########################
+########################################################################
+# Konstantsed muutujad (mänguvälja suurust ja ruutude arvu saab muuta) #
+########################################################################
 
 # Ühe ruudukese suurus pikslites
 RUUDU_KULG = 20
 
 # Mitu ruutu väljal on
-RUUTUDE_VEERGE = 10
-RUUTUDE_RIDU = 6
+RUUTUDE_VEERGE = 30
+RUUTUDE_RIDU = 10
 
 # Akna ääre paksus pikslites
 SERVA_PAKSUS = 0
@@ -415,7 +435,7 @@ akna_laius = RUUDU_KULG * RUUTUDE_VEERGE + 2 * SERVA_PAKSUS
 akna_korgus = RUUDU_KULG * RUUTUDE_RIDU + 2 * SERVA_PAKSUS
 
 # Mitu protsenti ruutudest on miinid
-PROTSENT_MIINE = 30
+PROTSENT_MIINE = 10
 
 # Loob kella fps-i jaoks
 kell = pygame.time.Clock()
