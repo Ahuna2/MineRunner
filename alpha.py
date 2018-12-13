@@ -207,9 +207,9 @@ def kliki_tagajarg(sisend):
         if valjak[sisend] == 1:
             return 'Miini otsas!'
         else:
-            valjund = miinide_arv(sisend)
-##            if valjund == 0:
-##                ava_umbritsevad(sisend)
+            valjund = kaart[sisend]
+            if valjund == 0:
+                ava_umbritsevad(sisend)
             return valjund
 
 
@@ -288,16 +288,16 @@ def main():
     parempoolsed_ruudud = []
     for i in range(RUUTUDE_RIDU):
         parempoolsed_ruudud.append(i * RUUTUDE_VEERGE + (RUUTUDE_VEERGE - 1))
+    
+    # Maatriks mille järgi joonistatakse mängu seis
+    maatriks = miinide_maatriks(valjak)
+            
+    # Loob rohelised ruudud
+    safe_zone()
         
     # Loob sõnastiku, mis salvestab, milliseid ruute saab avada
     kas_umbritseb = kas_umbritsev(vasakpoolsed_ruudud)
     kaart = kaardista_miinid()
-        
-    # Maatriks mille järgi joonistatakse mängu seis
-    maatriks = miinide_maatriks(valjak)
-    
-    # Loob rohelised ruudud
-    safe_zone()
 
     # Põhitsükkel
     while True:
@@ -384,7 +384,7 @@ def main():
                 elif maatriks[rea_nr][elemendi_nr] == 23:
                     maatriks[rea_nr][elemendi_nr] = 1
                 
-                pygame.time.delay(100)
+                pygame.time.delay(200)
                 
         
         # Uuendab pilti
@@ -404,8 +404,8 @@ def main():
 RUUDU_KULG = 20
 
 # Mitu ruutu väljal on
-RUUTUDE_VEERGE = 20
-RUUTUDE_RIDU = 20
+RUUTUDE_VEERGE = 10
+RUUTUDE_RIDU = 6
 
 # Akna ääre paksus pikslites
 SERVA_PAKSUS = 0
@@ -415,12 +415,13 @@ akna_laius = RUUDU_KULG * RUUTUDE_VEERGE + 2 * SERVA_PAKSUS
 akna_korgus = RUUDU_KULG * RUUTUDE_RIDU + 2 * SERVA_PAKSUS
 
 # Mitu protsenti ruutudest on miinid
-PROTSENT_MIINE = 10
+PROTSENT_MIINE = 30
 
 # Loob kella fps-i jaoks
 kell = pygame.time.Clock()
 
 FPS = 60
+sys.setrecursionlimit(3000)
 
 
 #########################
