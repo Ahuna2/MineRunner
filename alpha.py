@@ -335,7 +335,7 @@ def main():
             game_over_lava = teksti_font.render('GAME OVER!', False, (200, 50, 50), (100, 100, 100))
             aken.blit(game_over_lava, (akna_laius / 9, akna_korgus / 3))
             pygame.display.flip()
-            pygame.time.delay(6000)
+            pygame.time.delay(60000)
             break
 
         # Kui on jõutud teisele poole siis on mäng võidetud
@@ -424,8 +424,8 @@ def main():
 RUUDU_KULG = 20
 
 # Mitu ruutu väljal on
-RUUTUDE_VEERGE = 30
-RUUTUDE_RIDU = 10
+RUUTUDE_VEERGE = 40
+RUUTUDE_RIDU = 30
 
 # Akna ääre paksus pikslites
 SERVA_PAKSUS = 0
@@ -435,7 +435,7 @@ akna_laius = RUUDU_KULG * RUUTUDE_VEERGE + 2 * SERVA_PAKSUS
 akna_korgus = RUUDU_KULG * RUUTUDE_RIDU + 2 * SERVA_PAKSUS
 
 # Mitu protsenti ruutudest on miinid
-PROTSENT_MIINE = 10
+PROTSENT_MIINE = 20
 
 # Loob kella fps-i jaoks
 kell = pygame.time.Clock()
